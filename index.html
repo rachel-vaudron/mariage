@@ -282,10 +282,10 @@
             </div>
           </div>
           </sc-if>
-          <label style="display:flex; align-items:center; gap:12px; cursor:pointer; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.3); border-radius:8px; padding:14px 16px;">
-            <input type="checkbox" checked="{{ fPartner }}" onChange="{{ onPartner }}" style="width:18px; height:18px; accent-color:#fff; cursor:pointer;">
+          <div onClick="{{ onPartner }}" style="display:flex; align-items:center; gap:12px; cursor:pointer; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.3); border-radius:8px; padding:14px 16px; -webkit-tap-highlight-color:transparent; user-select:none;">
+            <input type="checkbox" checked="{{ fPartner }}" readOnly tabindex="-1" style="width:18px; height:18px; accent-color:#fff; pointer-events:none;">
             <span style="font-size:15px;">Je viens avec mon amoureux / amoureuse</span>
-          </label>
+          </div>
           <div>
             <label style="display:block; font-size:12.5px; letter-spacing:.1em; text-transform:uppercase; opacity:.85; margin-bottom:8px;">Un mot pour les mariés <span style="opacity:.6; text-transform:none; letter-spacing:0;">(optionnel)</span></label>
             <textarea value="{{ fMessage }}" onInput="{{ onMessage }}" rows="3" placeholder="Chanson à demander, petit mot, question…" style="width:100%; padding:14px 16px; border-radius:8px; border:1px solid rgba(255,255,255,.4); background:rgba(255,255,255,.12); color:#fff; font-size:15px; outline:none; resize:vertical;"></textarea>
@@ -525,7 +525,7 @@ class Component extends DCLogic {
       onGuests:(e)=>this.setState({guests:e.target.value}),
       onMeal:(e)=>this.setState({meal:e.target.value}),
       onMessage:(e)=>this.setState({message:e.target.value}),
-      onPartner:(e)=>this.setState({partner:e.target.checked}),
+      onPartner:()=>this.setState(s=>({partner:!s.partner})),
       setYes:()=>this.setState({attending:'oui'}),
       setMaybe:()=>this.setState({attending:'peut-etre'}),
       setNo:()=>this.setState({attending:'non'}),
