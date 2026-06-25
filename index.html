@@ -282,8 +282,8 @@
             </div>
           </div>
           </sc-if>
-          <div onClick="{{ onPartner }}" style="display:flex; align-items:center; gap:12px; cursor:pointer; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.3); border-radius:8px; padding:14px 16px; -webkit-tap-highlight-color:transparent; user-select:none;">
-            <input type="checkbox" checked="{{ fPartner }}" readOnly tabindex="-1" style="width:18px; height:18px; accent-color:#fff; pointer-events:none;">
+          <div onClick="{{ onPartner }}" role="checkbox" aria-checked="{{ fPartner }}" style="display:flex; align-items:center; gap:12px; cursor:pointer; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.3); border-radius:8px; padding:14px 16px; -webkit-tap-highlight-color:transparent; user-select:none;">
+            <span style="flex:none; width:22px; height:22px; border-radius:5px; border:2px solid #fff; display:flex; align-items:center; justify-content:center; background:{{ partnerBoxBg }}; color:var(--accent,#b9714a); font-size:14px; line-height:1; font-weight:700;">{{ partnerCheck }}</span>
             <span style="font-size:15px;">Je viens avec mon amoureux / amoureuse</span>
           </div>
           <div>
@@ -519,6 +519,8 @@ class Component extends DCLogic {
       confirmName: this.state.confirmName,
       confirmMsg: this.state.confirmMsg,
       fName:this.state.name, fEmail:this.state.email, fGuests:this.state.guests, fMeal:this.state.meal, fMessage:this.state.message, fPartner:this.state.partner,
+      partnerBoxBg: this.state.partner ? '#fff' : 'transparent',
+      partnerCheck: this.state.partner ? '✓' : '',
       attendingYes: yes,
       onName:(e)=>this.setState({name:e.target.value}),
       onEmail:(e)=>this.setState({email:e.target.value}),
