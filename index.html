@@ -271,7 +271,7 @@
           </div>
           <div>
             <label style="display:block; font-size:12.5px; letter-spacing:.1em; text-transform:uppercase; opacity:.85; margin-bottom:8px;">E-mail</label>
-            <input value="{{ fEmail }}" onInput="{{ onEmail }}" type="email" required placeholder="rvaudron@gmail.com" style="width:100%; padding:14px 16px; border-radius:8px; border:1px solid rgba(255,255,255,.4); background:rgba(255,255,255,.12); color:#fff; font-size:15px; outline:none;">
+            <input value="{{ fEmail }}" onInput="{{ onEmail }}" type="email" required placeholder="vous@email.com" style="width:100%; padding:14px 16px; border-radius:8px; border:1px solid rgba(255,255,255,.4); background:rgba(255,255,255,.12); color:#fff; font-size:15px; outline:none;">
           </div>
           <div>
             <label style="display:block; font-size:12.5px; letter-spacing:.1em; text-transform:uppercase; opacity:.85; margin-bottom:10px;">Serez-vous présent·e ?</label>
@@ -281,27 +281,6 @@
               <button type="button" onClick="{{ setNo }}" style="flex:1; min-width:130px; padding:13px; border-radius:8px; cursor:pointer; font-size:14px; letter-spacing:.04em; border:1px solid rgba(255,255,255,.5); background:{{ noBg }}; color:{{ noColor }};">Je ne pourrai pas</button>
             </div>
           </div>
-          <sc-if value="{{ attendingYes }}" hint-placeholder-val="{{ true }}">
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-              <div>
-                <label style="display:block; font-size:12.5px; letter-spacing:.1em; text-transform:uppercase; opacity:.85; margin-bottom:8px;">Nombre de personnes</label>
-                <select value="{{ fGuests }}" onChange="{{ onGuests }}" style="width:100%; padding:14px 16px; border-radius:8px; border:1px solid rgba(255,255,255,.4); background:rgba(255,255,255,.12); color:#fff; font-size:15px; outline:none;">
-                  <option style="color:#333;" value="1">1</option>
-                  <option style="color:#333;" value="2">2</option>
-                  <option style="color:#333;" value="3">3</option>
-                  <option style="color:#333;" value="4">4</option>
-                </select>
-              </div>
-              <div>
-                <label style="display:block; font-size:12.5px; letter-spacing:.1em; text-transform:uppercase; opacity:.85; margin-bottom:8px;">Régime</label>
-                <select value="{{ fMeal }}" onChange="{{ onMeal }}" style="width:100%; padding:14px 16px; border-radius:8px; border:1px solid rgba(255,255,255,.4); background:rgba(255,255,255,.12); color:#fff; font-size:15px; outline:none;">
-                  <option style="color:#333;" value="Classique">Classique</option>
-                  <option style="color:#333;" value="Végétarien">Végétarien</option>
-                  <option style="color:#333;" value="Sans gluten">Sans gluten</option>
-                  <option style="color:#333;" value="Autre">Autre (préciser ci-dessous)</option>
-                </select>
-              </div>
-            </div>
           </sc-if>
           <label style="display:flex; align-items:center; gap:12px; cursor:pointer; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.3); border-radius:8px; padding:14px 16px;">
             <input type="checkbox" checked="{{ fPartner }}" onChange="{{ onPartner }}" style="width:18px; height:18px; accent-color:#fff; cursor:pointer;">
@@ -309,7 +288,7 @@
           </label>
           <div>
             <label style="display:block; font-size:12.5px; letter-spacing:.1em; text-transform:uppercase; opacity:.85; margin-bottom:8px;">Un mot pour les mariés <span style="opacity:.6; text-transform:none; letter-spacing:0;">(optionnel)</span></label>
-            <textarea value="{{ fMessage }}" onInput="{{ onMessage }}" rows="3" placeholder="Chanson à demander, petit mot…" style="width:100%; padding:14px 16px; border-radius:8px; border:1px solid rgba(255,255,255,.4); background:rgba(255,255,255,.12); color:#fff; font-size:15px; outline:none; resize:vertical;"></textarea>
+            <textarea value="{{ fMessage }}" onInput="{{ onMessage }}" rows="3" placeholder="Chanson à demander, petit mot, question…" style="width:100%; padding:14px 16px; border-radius:8px; border:1px solid rgba(255,255,255,.4); background:rgba(255,255,255,.12); color:#fff; font-size:15px; outline:none; resize:vertical;"></textarea>
           </div>
           <button type="submit" style="margin-top:6px; background:#fff; color:var(--accent,#b9714a); border:none; padding:16px; border-radius:999px; font-size:14px; letter-spacing:.1em; text-transform:uppercase; font-weight:600; cursor:pointer;">Envoyer ma réponse</button>
         </form>
@@ -566,10 +545,33 @@ class Component extends DCLogic {
         } else if(this.state.attending==='peut-etre'){
           msg = 'Merci de nous avoir répondu ! Tenez-nous au courant dès que possible — on garde une place au chaud.';
         } else {
-          const g = this.state.guests;
-          msg = 'Votre présence est confirmée pour ' + g + ' personne' + (g>1?'s':'') + '. Nous avons hâte de célébrer ce jour avec vous !';
+          msg = this.state.partner
+            ? 'Votre présence est confirmée, à deux. Nous avons hâte de célébrer ce week-end avec vous !'
+            : 'Votre présence est confirmée. Nous avons hâte de célébrer ce week-end avec vous !';
         }
         this.setState({ rsvpSubmitted:true, confirmName:first, confirmMsg:msg });
+
+        // Envoi de la réponse par e-mail via Web3Forms
+        const presence = this.state.attending==='oui' ? 'Présent·e'
+          : this.state.attending==='non' ? 'Absent·e'
+          : 'Ne sait pas encore';
+        const payload = {
+          access_key: '75c3f043-3201-40ca-8553-67c9e2aaedea',
+          subject: 'RSVP Mariage — ' + (this.state.name||'(sans nom)'),
+          from_name: 'Site Mariage Rachel & Alexis',
+          Nom: this.state.name || '',
+          Email: this.state.email || '',
+          Présence: presence,
+          'Vient à deux': this.state.partner ? 'Oui' : 'Non',
+          Message: this.state.message || ''
+        };
+        try {
+          fetch('https://api.web3forms.com/submit', {
+            method:'POST',
+            headers:{ 'Content-Type':'application/json', 'Accept':'application/json' },
+            body: JSON.stringify(payload)
+          }).catch(()=>{});
+        } catch(err){}
       }
     };
   }
